@@ -144,6 +144,27 @@ function Header({
               </div>
             </Hover>
           </Link>
+
+          <Link
+              to={{
+                pathname: `${pagesURLs[pages.employeeDefaultPage]}`,
+              }}
+          >
+            <Button
+                colorVariant="header"
+                variant="text"
+            >
+              <Typography
+                  color="inherit"
+                  variant="subtitle"
+              >
+                <strong>
+                  {formatMessage({ id: 'employeePage' })}
+                </strong>
+              </Typography>
+            </Button>
+          </Link>
+
         </div>
         <div className={classes.toolBarContainerRight}>
           {actualOrderedRightPanelItemTypes.map((itemType) => (

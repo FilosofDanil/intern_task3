@@ -1,0 +1,16 @@
+{
+  "title": "Detailed information about certain employee",
+  "employee_name": "Name",
+  "employee_surname": "Surname",
+  "employee_job": "Job",
+  "employee_salary": "Salary",
+  "employee_hiring_date": "Hiring Date",
+  "employee_company_name": "Company",
+  "backButton": "On default page",
+  "toEmployees": "Back",
+  "editButton": "Edit",
+  "editBack": "Back",
+  "editClear": "Clear",
+  "editSave": "Save",
+  "editTitle": "Edit mode of an employee"
+}
