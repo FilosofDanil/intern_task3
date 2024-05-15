@@ -5,6 +5,7 @@ import IntlProvider from "../../misc/providers/IntlProvider";
 import EmployeeDefault from "./containers/EmployeeDefault";
 import configureStore from "../../misc/redux/configureStore";
 import rootReducer from "../../pages/employeeDefault/reducers/employee";
+import {Provider} from "react-redux";
 
 const store = configureStore(rootReducer);
 function Index(props) {
@@ -13,9 +14,11 @@ function Index(props) {
     } = useLocationSearch();
     const messages = useMemo(() => getMessages(lang), [lang]);
     return (
-        <IntlProvider messages={messages} store={store}>
-            <EmployeeDefault {...props} />
-        </IntlProvider>
+        <Provider store={store}>
+            <IntlProvider messages={messages}>
+                <EmployeeDefault {...props} />
+            </IntlProvider>
+        </Provider>
     );
 }
 

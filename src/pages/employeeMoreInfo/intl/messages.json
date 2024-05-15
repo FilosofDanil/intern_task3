@@ -12,5 +12,7 @@
   "editBack": "Back",
   "editClear": "Clear",
   "editSave": "Save",
-  "editTitle": "Edit mode of an employee"
+  "editTitle": "Edit mode of an employee",
+  "loading": "Not Found employee, loading...",
+  "createSave": "Create"
 }

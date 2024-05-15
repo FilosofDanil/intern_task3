@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {createUseStyles} from 'react-jss';
 import useTheme from "../../misc/hooks/useTheme";
 import BasketIcon from "../icons/BasketIcon";
@@ -6,6 +6,9 @@ import DeleteConfirmation from '../deleteconfirmation/DeleteConfirmation';
 import MoreInfoIcon from "../icons/MoreInfoIcon";
 import pagesURLs from "../../constants/pagesURLs";
 import * as pages from "../../constants/pages";
+import {useDispatch, useSelector} from "react-redux";
+import exportFunctions from "../../pages/employeeDefault/actions/employee";
+import {Notify} from "notiflix/build/notiflix-notify-aio";
 
 const getClasses = createUseStyles(theme => ({
     container: {
@@ -45,14 +48,29 @@ const getClasses = createUseStyles(theme => ({
     },
 }));
 
-const Item = ({employee, deleteFunc}) => {
+const Item = ({employee}) => {
     const {theme} = useTheme();
     const [isHovered, setIsHovered] = useState(false);
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
     const classes = getClasses({theme});
+    const dispatch = useDispatch()
+    const isDeleted = useSelector((state) => state.deleteEmployee);
+
+    useEffect(() => {
+        if(isConfirmationOpen){
+            if (isDeleted.isDeleted) {
+                Notify.success('Successfully deleted employee')
+                setIsConfirmationOpen(false);
+            }
+            if(!isDeleted.isDeleted){
+                Notify.failure('Failed to delete employee')
+                setIsConfirmationOpen(true)
+            }
+        }
+    }, [isDeleted]);
 
     const handleMoreInfo = () => {
-        window.location.href = `${pagesURLs[pages.employeeInfoPage]}?employee=${JSON.stringify(employee)}`;
+        window.location.href = `${pagesURLs[pages.employeeInfoPage]}/${employee.id}`;
     };
 
     const handleDelete = () => {
@@ -60,22 +78,7 @@ const Item = ({employee, deleteFunc}) => {
     };
 
     const handleConfirm = () => {
-        fetch(employee.selfLink, {
-            method: 'DELETE',
-        })
-            .then(response => {
-                if (response.ok) {
-                    setIsConfirmationOpen(false);
-                    deleteFunc(employee.selfLink)
-                } else {
-
-                }
-                setIsConfirmationOpen(false);
-            })
-            .catch(error => {
-                console.error('Error deleting item:', error);
-                setIsConfirmationOpen(false);
-            });
+        dispatch(exportFunctions.fetchDeleteEmployee(employee.id))
     };
 
     const handleCancel = () => {

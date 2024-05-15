@@ -1,12 +1,15 @@
-import React, {useState} from 'react';
-import { useLocation } from 'react-router-dom';
+import React, {useEffect, useState} from 'react';
+import {useLocation, useParams} from 'react-router-dom';
 import Typography from "../../../components/Typography";
-import { createUseStyles } from 'react-jss';
+import {createUseStyles} from 'react-jss';
 import {useIntl} from "react-intl";
 import {Button} from "@mui/material";
 import {AiOutlineStepBackward, AiTwotoneEdit, AiTwotoneHome} from "react-icons/ai";
 import pagesURLs from "../../../constants/pagesURLs";
 import * as pages from "../../../constants/pages";
+import {useDispatch, useSelector} from "react-redux";
+import exportFunctions from "../actions/employeeInfo";
+import {Notify} from 'notiflix/build/notiflix-notify-aio';
 
 const useStyles = createUseStyles({
     container: {
@@ -33,7 +36,7 @@ const useStyles = createUseStyles({
         marginRight: '10px',
 
     },
-    leftBorder:{
+    leftBorder: {
         borderLeft: '4px solid black',
     },
     infoItem: {
@@ -44,8 +47,7 @@ const useStyles = createUseStyles({
         borderRight: '4px solid black',
 
     },
-    text: {
-    },
+    text: {},
     buttonContainer: {
         display: 'flex',
         marginTop: '20px',
@@ -68,11 +70,11 @@ const useStyles = createUseStyles({
         transition: 'transform 0.4s',
 
     },
-    superContainer:{
+    superContainer: {
         padding: '20px',
         width: 'fit-content',
         display: 'grid',
-        justifyContent:'center',
+        justifyContent: 'center',
         height: "auto",
         margin: 'auto',
 
@@ -112,7 +114,7 @@ const useStyles = createUseStyles({
     red: {
         backgroundColor: 'red',
     },
-    black:{
+    black: {
         backgroundColor: 'black',
     },
     form: {
@@ -153,25 +155,75 @@ const useStyles = createUseStyles({
             color: 'black',
         },
     },
+    error: {
+        color: "red",
+        border: '2px solid red',
+    },
+    errorMsg: {
+        color: "red"
+    }
 });
 
 const EmployeeMoreInfo = () => {
-    const { formatMessage } = useIntl();
-    const location = useLocation();
-    const searchParams = new URLSearchParams(location.search);
-    const employee = JSON.parse(searchParams.get('employee'));
+    const {formatMessage} = useIntl();
+    const {id} = useParams();
     const classes = useStyles();
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+    const [isFormSent, setIsFormSent] = useState(false)
+    const [isNameValid, setIsNameValid] = useState(true);
+    const [isSurnameValid, setIsSurnameValid] = useState(true);
+    const [isSalaryValid, setIsSalaryValid] = useState(true);
+    const [isJobValid, setIsJobValid] = useState(true);
+    const [isDateValid, setIsDateValid] = useState(true);
+    const dispatch = useDispatch();
+    const employee = useSelector((state) => state.employee);
+    const companies = useSelector((state) => state.companies)
+    const create = useSelector(state => state.create);
+    const update = useSelector(state => state.update);
     const [editedEmployee, setEditedEmployee] = useState({
-        name: employee.name,
-        surname: employee.surname,
-        salary: employee.salary,
-        hiringDate: employee.hiringDate,
-        job: employee.job,
+        name: '',
+        surname: '',
+        salary: '',
+        hiringDate: '',
+        job: '',
         company: {
-            name: employee.company.name,
+            name: '',
         },
     });
+    useEffect(() => {
+        if (id) {
+            dispatch(exportFunctions.fetchEmployeeById(id))
+        } else {
+            setIsEditModalOpen(true)
+        }
+
+        dispatch(exportFunctions.fetchCompanies())
+    }, [id])
+
+    useEffect(() => {
+        if (isFormSent){
+            if (update.isUpdated) {
+                Notify.success('Successfully updated employee')
+            } else {
+                Notify.failure('Failed to update employee')
+                setIsEditModalOpen(true)
+            }
+        }
+        setIsFormSent(false)
+    }, [update]);
+
+    useEffect(() => {
+        if (isFormSent) {
+            if (create.isCreated) {
+                Notify.success('Created new employee')
+            } else {
+                Notify.failure('Cannot create new employee')
+                setIsEditModalOpen(true)
+            }
+        }
+        setIsFormSent(false)
+    }, [create]);
+
     const handleGoHome = () => {
         window.location.href = `${pagesURLs[pages.defaultPage]}`;
     };
@@ -181,26 +233,94 @@ const EmployeeMoreInfo = () => {
 
     const handleCloseEditModal = () => {
         setIsEditModalOpen(false);
+        if (!id) {
+            window.location.href = `${pagesURLs[pages.employeeDefaultPage]}`;
+        }
     };
     const handleOpenEditModal = () => {
+        if (employee && employee.company) {
+            setEditedEmployee({
+                name: employee.name,
+                surname: employee.surname,
+                salary: employee.salary,
+                hiringDate: employee.hiringDate,
+                job: employee.job,
+                company: {
+                    name: employee.company.name,
+                },
+            })
+        }
         setIsEditModalOpen(true);
     };
 
     const handleChange = (e) => {
-        const { name, value } = e.target;
-        setEditedEmployee((prevEmployee) => ({
-            ...prevEmployee,
-            [name]: value,
-        }));
+        const {name, value} = e.target;
+        if (name === 'companyName') {
+            editedEmployee.company.name = value
+            setEditedEmployee((prevEmployee) => ({
+                ...prevEmployee,
+            }));
+        } else {
+            setEditedEmployee((prevEmployee) => ({
+                ...prevEmployee,
+                [name]: value,
+            }));
+        }
     };
 
-    const handleSaveChanges = () => {
-        // Handle saving changes here
-        console.log('Saved changes:', editedEmployee);
-        setIsEditModalOpen(false);
+    const handleSaveChanges = (e) => {
+        if (validate()) {
+            if (id || employee.id) {
+                dispatch(exportFunctions.fetchUpdateEmployee(employee.id, editedEmployee))
+            } else {
+                dispatch(exportFunctions.fetchCreateEmployee(editedEmployee))
+            }
+            setIsFormSent(true)
+            setIsEditModalOpen(false);
+        } else {
+            e.preventDefault();
+            Notify.failure('Invalid data provided')
+        }
     };
 
-    const handleClear = () => {
+    const validate = () => {
+        let isValid = true
+        const regexDate = /^\d{4}-\d{2}-\d{2}$/;
+        if (!editedEmployee.name || editedEmployee.name.trim() === '') {
+            setIsNameValid(false)
+            isValid = false
+        } else {
+            setIsNameValid(true)
+        }
+        if (!editedEmployee.surname || editedEmployee.surname.trim() === '') {
+            setIsSurnameValid(false)
+            isValid = false
+        } else {
+            setIsSurnameValid(true)
+        }
+        if (!editedEmployee.salary || isNaN(editedEmployee.salary) || editedEmployee.salary <= 0) {
+            setIsSalaryValid(false)
+            isValid = false
+        } else {
+            setIsSalaryValid(true)
+        }
+        if (!editedEmployee.job || editedEmployee.job.trim() === '') {
+            setIsJobValid(false)
+            isValid = false
+        } else {
+            setIsJobValid(true)
+        }
+        if (!regexDate.test(editedEmployee.hiringDate)) {
+            setIsDateValid(false)
+            isValid = false
+        } else {
+            setIsDateValid(true)
+        }
+        return isValid
+    }
+
+    const handleClear = (e) => {
+        e.preventDefault();
         setEditedEmployee({
             name: '',
             surname: '',
@@ -215,90 +335,101 @@ const EmployeeMoreInfo = () => {
 
     return (
         <div>
-            <Typography variant="title" align="center">
-                {formatMessage({id: 'title'})}
-            </Typography>
-            <div className={classes.superContainer}>
-                <div className={classes.container}>
-                    <div className={classes.gridContainer}>
-                        <div className={`${classes.infoItem} ${classes.leftBorder}`}>
-                            <div className={classes.label}>
-                                {formatMessage({id: 'employee_name'})}:
-                            </div>
-                            <div className={classes.text}>
-                                {employee.name}
+            {!employee || !employee.company && (
+                <div>
+                    <Typography variant="title" align="center">
+                        {formatMessage({id: 'loading'})}
+                    </Typography>
+                </div>
+            )}
+            {employee && employee.company && (
+                <div>
+                    <Typography variant="title" align="center">
+                        {formatMessage({id: 'title'})}
+                    </Typography>
+                    <div className={classes.superContainer}>
+                        <div className={classes.container}>
+                            <div className={classes.gridContainer}>
+                                <div className={`${classes.infoItem} ${classes.leftBorder}`}>
+                                    <div className={classes.label}>
+                                        {formatMessage({id: 'employee_name'})}:
+                                    </div>
+                                    <div className={classes.text}>
+                                        {employee.name}
+                                    </div>
+                                </div>
+                                <div className={classes.infoItem}>
+                                    <div className={classes.label}>
+                                        {formatMessage({id: 'employee_surname'})}:
+                                    </div>
+                                    <div className={classes.text}>
+                                        {employee.surname}
+                                    </div>
+                                </div>
+                                <div className={`${classes.infoItem} ${classes.leftBorder}`}>
+                                    <div className={classes.label}>
+                                        {formatMessage({id: 'employee_salary'})}:
+                                    </div>
+                                    <div className={classes.text}>
+                                        {employee.salary}
+                                    </div>
+                                </div>
+                                <div className={classes.infoItem}>
+                                    <div className={classes.label}>
+                                        {formatMessage({id: 'employee_hiring_date'})}:
+                                    </div>
+                                    <div className={classes.text}>
+                                        {employee.hiringDate}
+                                    </div>
+                                </div>
+                                <div className={`${classes.infoItem} ${classes.leftBorder}`}>
+                                    <div className={classes.label}>
+                                        {formatMessage({id: 'employee_job'})}:
+                                    </div>
+                                    <div className={classes.text}>
+                                        {employee.job}
+                                    </div>
+                                </div>
+                                <div className={classes.infoItem}>
+                                    <div className={classes.label}>
+                                        {formatMessage({id: 'employee_company_name'})}:
+                                    </div>
+                                    <div className={classes.text}>
+                                        {employee.company.name}
+                                    </div>
+                                </div>
                             </div>
                         </div>
-                        <div className={classes.infoItem}>
-                            <div className={classes.label}>
-                                {formatMessage({id: 'employee_surname'})}:
-                            </div>
-                            <div className={classes.text}>
-                                {employee.surname}
-                            </div>
+                        <div className={classes.buttonContainer}>
+                            <Button
+                                startIcon={<AiTwotoneHome/>}
+                                className={classes.backButton}
+                                onClick={handleGoHome}
+                            >
+                                {formatMessage({id: 'backButton'})}
+                            </Button>
                         </div>
-                        <div className={`${classes.infoItem} ${classes.leftBorder}`}>
-                            <div className={classes.label}>
-                                {formatMessage({id: 'employee_salary'})}:
-                            </div>
-                            <div className={classes.text}>
-                                {employee.salary}
-                            </div>
+                        <div className={classes.buttonContainer}>
+                            <Button
+                                startIcon={<AiOutlineStepBackward/>}
+                                className={classes.backButton}
+                                onClick={handleGoToEmployee}
+                            >
+                                {formatMessage({id: 'toEmployees'})}
+                            </Button>
                         </div>
-                        <div className={classes.infoItem}>
-                            <div className={classes.label}>
-                                {formatMessage({id: 'employee_hiring_date'})}:
-                            </div>
-                            <div className={classes.text}>
-                                {employee.hiringDate}
-                            </div>
-                        </div>
-                        <div className={`${classes.infoItem} ${classes.leftBorder}`}>
-                            <div className={classes.label}>
-                                {formatMessage({id: 'employee_job'})}:
-                            </div>
-                            <div className={classes.text}>
-                                {employee.job}
-                            </div>
-                        </div>
-                        <div className={classes.infoItem}>
-                            <div className={classes.label}>
-                                {formatMessage({id: 'employee_company_name'})}:
-                            </div>
-                            <div className={classes.text}>
-                                {employee.company.name}
-                            </div>
+                        <div className={classes.buttonContainer}>
+                            <Button
+                                startIcon={<AiTwotoneEdit/>}
+                                className={classes.backButton}
+                                onClick={handleOpenEditModal}
+                            >
+                                {formatMessage({id: 'editButton'})}
+                            </Button>
                         </div>
                     </div>
                 </div>
-                <div className={classes.buttonContainer}>
-                    <Button
-                        startIcon={<AiTwotoneHome/>}
-                        className={classes.backButton}
-                        onClick={handleGoHome}
-                    >
-                        {formatMessage({id: 'backButton'})}
-                    </Button>
-                </div>
-                <div className={classes.buttonContainer}>
-                    <Button
-                        startIcon={<AiOutlineStepBackward/>}
-                        className={classes.backButton}
-                        onClick={handleGoToEmployee}
-                    >
-                        {formatMessage({id: 'toEmployees'})}
-                    </Button>
-                </div>
-                <div className={classes.buttonContainer}>
-                    <Button
-                        startIcon={<AiTwotoneEdit/>}
-                        className={classes.backButton}
-                        onClick={handleOpenEditModal}
-                    >
-                        {formatMessage({id: 'editButton'})}
-                    </Button>
-                </div>
-            </div>
+            )}
             {isEditModalOpen && (
                 <div className={classes.modal}>
                     <div className={classes.modalContent}>
@@ -310,92 +441,150 @@ const EmployeeMoreInfo = () => {
                         <form className={classes.form}>
                             <div className={classes.formGroup}>
                                 <label className={classes.formLabel} htmlFor="name">
-                                    {formatMessage({ id: 'employee_name' })}
+                                    {formatMessage({id: 'employee_name'})}
                                 </label>
-                                <input
+                                {isNameValid && <input
                                     className={classes.formInput}
                                     type="text"
                                     id="name"
                                     name="name"
                                     value={editedEmployee.name}
                                     onChange={handleChange}
-                                />
+                                />}
+                                {!isNameValid && <input
+                                    className={`${classes.formInput} ${classes.error}`}
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    value={editedEmployee.name}
+                                    onChange={handleChange}
+
+                                />}
+                                {!isNameValid && <p className={classes.errorMsg}>Please enter a valid name</p>}
                             </div>
                             <div className={classes.formGroup}>
                                 <label className={classes.formLabel} htmlFor="surname">
-                                    {formatMessage({ id: 'employee_surname' })}
+                                    {formatMessage({id: 'employee_surname'})}
                                 </label>
-                                <input
+                                {isSurnameValid && <input
                                     className={classes.formInput}
                                     type="text"
                                     id="surname"
                                     name="surname"
                                     value={editedEmployee.surname}
                                     onChange={handleChange}
-                                />
+                                />}
+                                {!isSurnameValid && <input
+                                    className={`${classes.formInput} ${classes.error}`}
+                                    type="text"
+                                    id="surname"
+                                    name="surname"
+                                    value={editedEmployee.surname}
+                                    onChange={handleChange}
+                                />}
+                                {!isSurnameValid && <p className={classes.errorMsg}>Please enter a valid surname</p>}
                             </div>
                             <div className={classes.formGroup}>
                                 <label className={classes.formLabel} htmlFor="salary">
-                                    {formatMessage({ id: 'employee_salary' })}
+                                    {formatMessage({id: 'employee_salary'})}
                                 </label>
-                                <input
+                                {isSalaryValid && <input
                                     className={classes.formInput}
                                     type="text"
                                     id="salary"
                                     name="salary"
                                     value={editedEmployee.salary}
                                     onChange={handleChange}
-                                />
+                                />}
+                                {!isSalaryValid && <input
+                                    className={`${classes.formInput} ${classes.error}`}
+                                    type="text"
+                                    id="salary"
+                                    name="salary"
+                                    value={editedEmployee.salary}
+                                    onChange={handleChange}
+                                />}
+                                {!isSalaryValid && <p className={classes.errorMsg}>Please enter a valid salary</p>}
+
                             </div>
                             <div className={classes.formGroup}>
                                 <label className={classes.formLabel} htmlFor="hiringDate">
-                                    {formatMessage({ id: 'employee_hiring_date' })}
+                                    {formatMessage({id: 'employee_hiring_date'})}
                                 </label>
-                                <input
+                                {isDateValid && <input
                                     className={classes.formInput}
                                     type="text"
                                     id="hiringDate"
                                     name="hiringDate"
                                     value={editedEmployee.hiringDate}
                                     onChange={handleChange}
-                                />
+                                />}
+                                {!isDateValid && <input
+                                    className={`${classes.formInput} ${classes.error}`}
+                                    type="text"
+                                    id="hiringDate"
+                                    name="hiringDate"
+                                    value={editedEmployee.hiringDate}
+                                    onChange={handleChange}
+                                />}
+                                {!isDateValid && <p className={classes.errorMsg}>Please enter a valid date</p>}
                             </div>
                             <div className={classes.formGroup}>
                                 <label className={classes.formLabel} htmlFor="job">
-                                    {formatMessage({ id: 'employee_job' })}
+                                    {formatMessage({id: 'employee_job'})}
                                 </label>
-                                <input
+                                {isJobValid && <input
                                     className={classes.formInput}
                                     type="text"
                                     id="job"
                                     name="job"
                                     value={editedEmployee.job}
                                     onChange={handleChange}
-                                />
+                                />}
+                                {!isJobValid && <input
+                                    className={`${classes.formInput} ${classes.error}`}
+                                    type="text"
+                                    id="job"
+                                    name="job"
+                                    value={editedEmployee.job}
+                                    onChange={handleChange}
+                                />}
+                                {!isJobValid && <p className={classes.errorMsg}>Please enter a valid job</p>}
                             </div>
                             <div className={classes.formGroup}>
                                 <label className={classes.formLabel} htmlFor="companyName">
-                                    {formatMessage({ id: 'employee_company_name' })}
+                                    {formatMessage({id: 'employee_company_name'})}
                                 </label>
-                                <input
-                                    className={classes.formInput}
-                                    type="text"
+                                <select
+                                    className={classes.formSelect}
                                     id="companyName"
                                     name="companyName"
                                     value={editedEmployee.company.name}
                                     onChange={handleChange}
-                                />
+                                >
+                                    {companies.map((company, index) => (
+                                        <option key={index} value={company.name}>
+                                            {company.name}
+                                        </option>
+                                    ))}
+                                </select>
                             </div>
                             <div className={classes.formButtonContainer}>
-                                <button className={`${classes.formButton} ${classes.black}`} onClick={handleCloseEditModal}>
-                                    {formatMessage({ id: 'editBack' })}
+                                <button className={`${classes.formButton} ${classes.black}`}
+                                        onClick={handleCloseEditModal}>
+                                    {formatMessage({id: 'editBack'})}
                                 </button>
                                 <button className={`${classes.formButton} ${classes.red}`} onClick={handleClear}>
-                                    {formatMessage({ id: 'editClear' })}
+                                    {formatMessage({id: 'editClear'})}
                                 </button>
-                                <button className={`${classes.formButton} ${classes.black}`} onClick={handleSaveChanges}>
-                                    {formatMessage({ id: 'editSave' })}
-                                </button>
+                                {id && <button className={`${classes.formButton} ${classes.black}`}
+                                                     onClick={handleSaveChanges}>
+                                    {formatMessage({id: 'editSave'})}
+                                </button>}
+                                {!id && <button className={`${classes.formButton} ${classes.black}`}
+                                                     onClick={handleSaveChanges}>
+                                    {formatMessage({id: 'createSave'})}
+                                </button>}
                             </div>
                         </form>
                     </div>

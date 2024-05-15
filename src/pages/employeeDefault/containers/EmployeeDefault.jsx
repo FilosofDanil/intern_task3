@@ -2,18 +2,28 @@ import React, {useEffect, useState} from 'react';
 import Typography from "../../../components/Typography";
 import {useIntl} from "react-intl";
 import Item from "../../../components/Item";
-import {AiOutlinePlus} from "react-icons/ai";
+import {AiFillCaretDown, AiFillCaretUp, AiFillDownSquare, AiOutlinePlus} from "react-icons/ai";
 import {createUseStyles} from "react-jss";
 import useTheme from "../../../misc/hooks/useTheme";
+import storage, {keys} from 'misc/storage';
+
 
 import exportFunctions from "../../employeeDefault/actions/employee";
 import {useDispatch, useSelector} from "react-redux";
+import Link from "../../../components/Link";
+import pagesURLs from "../../../constants/pagesURLs";
+import * as pages from "../../../constants/pages";
+import Hover from "../../../components/Hover";
+import Logo from "../../../components/Logo";
+import {Notify} from "notiflix/build/notiflix-notify-aio";
 
 const getClasses = createUseStyles((theme) => ({
-    addButton: {
+    Button: {
+        visibility: 'visible',
         position: 'relative',
         display: 'flex',
         alignItems: 'center',
+        justifyContent: 'center',
         padding: theme.spacing(2),
         border: `2px solid black`,
         backgroundColor: `grey`,
@@ -29,12 +39,18 @@ const getClasses = createUseStyles((theme) => ({
         marginLeft: 'auto',
         marginRight: 'auto',
     },
+    gridContainer: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        display: 'grid',
+        gridTemplateColumns: '0.1fr 0.1fr',
+    },
     buttonText: {
         marginLeft: theme.spacing(1),
         textAlign: 'center',
     },
     emptyBlock: {
-        height: '100px',
+        height: '40px',
         width: '100%',
         backgroundColor: 'grey',
         border: `2px solid black`,
@@ -42,11 +58,13 @@ const getClasses = createUseStyles((theme) => ({
         position: 'relative',
         visibility: 'hidden',
     },
-    addEmployeeButton: {
+    paginationButton: {
+        visibility: 'visible',
+    },
+    additionalButton: {
         position: 'absolute',
         top: '0',
         left: '0',
-        visibility: 'visible',
     },
     filterContainer: {
         marginTop: '20px',
@@ -70,39 +88,128 @@ const getClasses = createUseStyles((theme) => ({
     filterButtonHover: {
         backgroundColor: 'darkblue',
     },
+    error:{
+        color: "red",
+        border: '2px solid red',
+    },
 }));
 
 function EmployeeDefault() {
-    const { theme } = useTheme();
-    const { formatMessage } = useIntl();
-    const [minSalary, setMinSalary] = useState('');
-    const [maxSalary, setMaxSalary] = useState('');
-    const [name, setName] = useState('');
-    const [companyName, setCompanyName] = useState('');
-    const classes = getClasses({ theme });
+    const {theme} = useTheme();
+    const {formatMessage} = useIntl();
+    const classes = getClasses({theme});
     const dispatch = useDispatch();
     const employeeList = useSelector((state) => state.employeeList);
+    const isDeleted = useSelector((state) => state.deleteEmployee);
+    const totalPages = useSelector(state => state.totalPages)
+    const isLoaded =  useSelector(state => state.isLoaded)
+    const [pageCount, setPageCount] = useState(0)
+    const [isMinSalaryValid, setIsMinSalaryValid] = useState(true)
+    const [isMaxSalaryValid, setIsMaxSalaryValid] = useState(true)
+    const [list, setList] = useState([])
+    const [filters, setFilters] = useState({
+        minSalary: '',
+        maxSalary: '',
+        surname: '',
+        name: '',
+    })
 
     useEffect(() => {
-        dispatch(exportFunctions.fetchEmployees());
+        const page = Number(storage.getItem('page'))
+        const filterState = JSON.parse(storage.getItem('filters'))
+        if(page && filterState ) {
+            setPageCount(page)
+            setFilters(filterState)
+            dispatch(exportFunctions.fetchEmployees(page, filterState));
+        } else if(filterState){
+            setFilters(filterState)
+            dispatch(exportFunctions.fetchEmployees(pageCount, filterState));
+        }else if(page){
+            setPageCount(page)
+            dispatch(exportFunctions.fetchEmployees(page, filters));
+        }
+        else {
+            dispatch(exportFunctions.fetchEmployees(pageCount, filters));
+        }
     }, [dispatch]);
 
-    const deleteEmployee = (selfLink) => {
-        // setList((prev) => prev.filter((item) => item.selfLink !== selfLink));
+    useEffect(() => {
+
+        if(isDeleted.isDeleted){
+            deleteEmployee(isDeleted.id)
+        }
+    }, [isDeleted]);
+
+    useEffect(() => {
+        setList(employeeList)
+    }, [employeeList]);
+
+    const deleteEmployee = (id) => {
+        setList((prev) => prev.filter((item) => item.id !== id));
     };
 
     const handleAddEmployee = () => {
-
+        window.location.href = `${pagesURLs[pages.employeeInfoPage]}`;
     };
 
     const handleFilterSubmit = () => {
-
+        if(validate()){
+            storage.setItem('filters', JSON.stringify(filters));
+            dispatch(exportFunctions.fetchEmployees(pageCount, filters));
+        }
     };
 
-    if (!employeeList) {
+    const handleChange = (e) => {
+        const { name, value } = e.target;
+            setFilters((prevState) => ({
+                ...prevState,
+                [name]: value,
+            }));
+    };
+
+    const handlePaginationNext = () => {
+        if(pageCount<totalPages){
+            setPageCount(pageCount+1)
+            storage.setItem("page", pageCount+1)
+            dispatch(exportFunctions.fetchEmployees(pageCount+1, filters));
+        }
+    }
+    const handlePaginationPrevious = () => {
+        if(pageCount>0){
+            setPageCount(pageCount-1)
+            storage.setItem("page", pageCount-1)
+            dispatch(exportFunctions.fetchEmployees(pageCount-1, filters));
+        }
+    }
+    const validate = () =>{
+        let isValid = true
+        if(filters.minSalary){
+            if(isNaN(filters.minSalary)){
+                setIsMinSalaryValid(false)
+                isValid = false
+            } else {
+                setIsMinSalaryValid(true)
+            }
+        }else {
+            setIsMinSalaryValid(true)
+        }
+        if(filters.maxSalary){
+            if(isNaN(filters.maxSalary)){
+                setIsMaxSalaryValid(false)
+                isValid = false
+            } else {
+                setIsMaxSalaryValid(true)
+            }
+        }else {
+            setIsMaxSalaryValid(true)
+        }
+        return isValid
+    }
+
+    if (!isLoaded) {
         return (
             <Typography variant="title" align="center">
-                {formatMessage({ id: 'loading' })}
+                {formatMessage({id: 'loading'})}
             </Typography>
         );
     }
@@ -112,46 +219,76 @@ function EmployeeDefault() {
                 {formatMessage({id: 'title'})}
             </Typography>
             <div className={classes.filterContainer}>
-                <input
+                {isMinSalaryValid && <input
                     type="text"
                     name="minSalary"
                     placeholder="Мінімальна зарплата"
-                    value={minSalary}
-                    onChange={(e) => setMinSalary(e.target.value)}
+                    value={filters.minSalary || ''}
+                    onChange={handleChange}
                     className={classes.filterInput}
-                />
-                <input
+                />}
+                {!isMinSalaryValid && <input
+                    type="text"
+                    name="minSalary"
+                    placeholder="Мінімальна зарплата"
+                    value={filters.minSalary || ''}
+                    onChange={handleChange}
+                    className={`${classes.filterInput} ${classes.error}`}
+                />}
+
+                {isMaxSalaryValid && <input
                     type="text"
                     name="maxSalary"
                     placeholder="Максимальна зарплата"
-                    value={maxSalary}
-                    onChange={(e) => setMaxSalary(e.target.value)}
+                    value={filters.maxSalary || ''}
+                    onChange={handleChange}
                     className={classes.filterInput}
-                />
+                />}
+                {!isMaxSalaryValid && <input
+                    type="text"
+                    name="maxSalary"
+                    placeholder="Максимальна зарплата"
+                    value={filters.maxSalary || ''}
+                    onChange={handleChange}
+                    className={`${classes.filterInput} ${classes.error}`}
+                />}
+
+
                 <input
                     type="text"
                     name="name"
                     placeholder="Ім'я"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    value={filters.name || ''}
+                    onChange={handleChange}
                     className={classes.filterInput}
                 />
                 <input
                     type="text"
-                    name="companyName"
-                    placeholder="Назва компанії"
-                    value={companyName}
-                    onChange={(e) => setCompanyName(e.target.value)}
+                    name="surname"
+                    placeholder="Прізвище"
+                    value={filters.surname || ''}
+                    onChange={handleChange}
                     className={classes.filterInput}
                 />
                 <button onClick={handleFilterSubmit} className={classes.filterButton}>Відфільтрувати</button>
             </div>
             <ol>
-                {employeeList.map((item, index) => (
-                    <Item key={index} employee={item} onDelete={deleteEmployee}/>
+                {isLoaded && list.map((item, index) => (
+                    <Item key={index} employee={item}/>
                 ))}
+                <div className={classes.emptyBlock} >
+                    <div className={classes.gridContainer}>
+                        <div className={`${classes.Button} `} onClick={handlePaginationNext}>
+                            <AiFillCaretDown/> <span className={classes.buttonText}>...</span>
+                        </div>
+                        <div className={`${classes.Button} `} onClick={handlePaginationPrevious}>
+                            <AiFillCaretUp/> <span className={classes.buttonText}>...</span>
+                        </div>
+                    </div>
+                </div>
                 <div className={classes.emptyBlock}>
-                    <div className={`${classes.addButton} ${classes.addEmployeeButton}`} onClick={handleAddEmployee}>
+                    <div className={`${classes.Button} ${classes.additionalButton}`}
+                         onClick={handleAddEmployee}>
                         <AiOutlinePlus/>
                         <span className={classes.buttonText}>Додати співробітника</span>
                     </div>
