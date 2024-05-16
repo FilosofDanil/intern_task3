@@ -1,7 +1,6 @@
 import config from "../../../config";
 import axios from "../../../misc/requests";
 import {
-    ERROR_RECEIVE_EMPLOYEES,
     ERROR_RECEIVE_EMPLOYEE_BY_ID,
     RECEIVE_EMPLOYEE_BY_ID,
     CREATE_EMPLOYEE,
@@ -15,11 +14,6 @@ import {
 const receiveCreatedEmployee = (employee) => ({
     payload: employee,
     type: CREATE_EMPLOYEE,
-});
-
-const errorEmployees = (errors) => ({
-    payload: errors,
-    type: ERROR_RECEIVE_EMPLOYEES,
 });
 
 const receiveEmployeeById = (employee) => ({

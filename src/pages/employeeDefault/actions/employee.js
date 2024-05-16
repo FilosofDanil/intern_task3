@@ -60,14 +60,10 @@ const fetchEmployees = (page, filter) => (dispatch) => {
 const fetchDeleteEmployee = (id) => (dispatch) => {
     return deleteEmployee(id)
         .then(response => {
-            console.log(response)
-
                 dispatch(deletedEmployee(id))
-
             }
         )
         .catch(error => {
-
             dispatch(errorDeleteEmployee())
         });
 }

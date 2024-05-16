@@ -14,5 +14,10 @@
   "editSave": "Save",
   "editTitle": "Edit mode of an employee",
   "loading": "Not Found employee, loading...",
-  "createSave": "Create"
+  "createSave": "Create",
+  "successCreate": "Successfully created employee",
+  "unSuccessCreate": "Failed to create employee",
+  "successUpdate": "Successfully updated employee",
+  "unSuccessUpdate": "Failed to update employee",
+  "invalidData": "Invalid data, please try again"
 }

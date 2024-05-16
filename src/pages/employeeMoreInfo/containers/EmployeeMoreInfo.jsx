@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react';
-import {useLocation, useParams} from 'react-router-dom';
+import {useParams} from 'react-router-dom';
 import Typography from "../../../components/Typography";
 import {createUseStyles} from 'react-jss';
 import {useIntl} from "react-intl";
@@ -203,9 +203,9 @@ const EmployeeMoreInfo = () => {
     useEffect(() => {
         if (isFormSent){
             if (update.isUpdated) {
-                Notify.success('Successfully updated employee')
+                Notify.success(formatMessage({id: 'successUpdate'}))
             } else {
-                Notify.failure('Failed to update employee')
+                Notify.failure(formatMessage({id: 'unSuccessUpdate'}))
                 setIsEditModalOpen(true)
             }
         }
@@ -215,9 +215,9 @@ const EmployeeMoreInfo = () => {
     useEffect(() => {
         if (isFormSent) {
             if (create.isCreated) {
-                Notify.success('Created new employee')
+                Notify.success(formatMessage({id: 'successCreate'}))
             } else {
-                Notify.failure('Cannot create new employee')
+                Notify.failure(formatMessage({id: 'unSuccessCreate'}))
                 setIsEditModalOpen(true)
             }
         }
@@ -233,7 +233,7 @@ const EmployeeMoreInfo = () => {
 
     const handleCloseEditModal = () => {
         setIsEditModalOpen(false);
-        if (!id) {
+        if (!id && !employee.id) {
             window.location.href = `${pagesURLs[pages.employeeDefaultPage]}`;
         }
     };
@@ -270,7 +270,9 @@ const EmployeeMoreInfo = () => {
 
     const handleSaveChanges = (e) => {
         if (validate()) {
-            if (id || employee.id) {
+            if (id) {
+                dispatch(exportFunctions.fetchUpdateEmployee(id, editedEmployee))
+            } else if(employee.id){
                 dispatch(exportFunctions.fetchUpdateEmployee(employee.id, editedEmployee))
             } else {
                 dispatch(exportFunctions.fetchCreateEmployee(editedEmployee))
@@ -279,7 +281,7 @@ const EmployeeMoreInfo = () => {
             setIsEditModalOpen(false);
         } else {
             e.preventDefault();
-            Notify.failure('Invalid data provided')
+            Notify.failure(formatMessage({id: 'invalidData'}))
         }
     };
 
@@ -335,7 +337,7 @@ const EmployeeMoreInfo = () => {
 
     return (
         <div>
-            {!employee || !employee.company && (
+            {!employee || !employee.company && id && (
                 <div>
                     <Typography variant="title" align="center">
                         {formatMessage({id: 'loading'})}
@@ -577,11 +579,11 @@ const EmployeeMoreInfo = () => {
                                 <button className={`${classes.formButton} ${classes.red}`} onClick={handleClear}>
                                     {formatMessage({id: 'editClear'})}
                                 </button>
-                                {id && <button className={`${classes.formButton} ${classes.black}`}
+                                {(id || employee.id)&& <button className={`${classes.formButton} ${classes.black}`}
                                                      onClick={handleSaveChanges}>
                                     {formatMessage({id: 'editSave'})}
                                 </button>}
-                                {!id && <button className={`${classes.formButton} ${classes.black}`}
+                                {!id && !employee.id && <button className={`${classes.formButton} ${classes.black}`}
                                                      onClick={handleSaveChanges}>
                                     {formatMessage({id: 'createSave'})}
                                 </button>}

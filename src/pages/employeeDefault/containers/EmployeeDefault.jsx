@@ -2,20 +2,16 @@ import React, {useEffect, useState} from 'react';
 import Typography from "../../../components/Typography";
 import {useIntl} from "react-intl";
 import Item from "../../../components/Item";
-import {AiFillCaretDown, AiFillCaretUp, AiFillDownSquare, AiOutlinePlus} from "react-icons/ai";
+import {AiFillCaretDown, AiFillCaretUp, AiOutlinePlus} from "react-icons/ai";
 import {createUseStyles} from "react-jss";
 import useTheme from "../../../misc/hooks/useTheme";
-import storage, {keys} from 'misc/storage';
+import storage from 'misc/storage';
 
 
 import exportFunctions from "../../employeeDefault/actions/employee";
 import {useDispatch, useSelector} from "react-redux";
-import Link from "../../../components/Link";
 import pagesURLs from "../../../constants/pagesURLs";
 import * as pages from "../../../constants/pages";
-import Hover from "../../../components/Hover";
-import Logo from "../../../components/Logo";
-import {Notify} from "notiflix/build/notiflix-notify-aio";
 
 const getClasses = createUseStyles((theme) => ({
     Button: {
@@ -222,7 +218,7 @@ function EmployeeDefault() {
                 {isMinSalaryValid && <input
                     type="text"
                     name="minSalary"
-                    placeholder="Мінімальна зарплата"
+                    placeholder={formatMessage({id: 'filter_minSalary'})}
                     value={filters.minSalary || ''}
                     onChange={handleChange}
                     className={classes.filterInput}
@@ -230,7 +226,7 @@ function EmployeeDefault() {
                 {!isMinSalaryValid && <input
                     type="text"
                     name="minSalary"
-                    placeholder="Мінімальна зарплата"
+                    placeholder={formatMessage({id: 'filter_minSalary'})}
                     value={filters.minSalary || ''}
                     onChange={handleChange}
                     className={`${classes.filterInput} ${classes.error}`}
@@ -239,7 +235,7 @@ function EmployeeDefault() {
                 {isMaxSalaryValid && <input
                     type="text"
                     name="maxSalary"
-                    placeholder="Максимальна зарплата"
+                    placeholder={formatMessage({id: 'filter_maxSalary'})}
                     value={filters.maxSalary || ''}
                     onChange={handleChange}
                     className={classes.filterInput}
@@ -247,7 +243,7 @@ function EmployeeDefault() {
                 {!isMaxSalaryValid && <input
                     type="text"
                     name="maxSalary"
-                    placeholder="Максимальна зарплата"
+                    placeholder={formatMessage({id: 'filter_maxSalary'})}
                     value={filters.maxSalary || ''}
                     onChange={handleChange}
                     className={`${classes.filterInput} ${classes.error}`}
@@ -257,7 +253,7 @@ function EmployeeDefault() {
                 <input
                     type="text"
                     name="name"
-                    placeholder="Ім'я"
+                    placeholder={formatMessage({id: 'filter_name'})}
                     value={filters.name || ''}
                     onChange={handleChange}
                     className={classes.filterInput}
@@ -265,12 +261,12 @@ function EmployeeDefault() {
                 <input
                     type="text"
                     name="surname"
-                    placeholder="Прізвище"
+                    placeholder={formatMessage({id: 'filter_surname'})}
                     value={filters.surname || ''}
                     onChange={handleChange}
                     className={classes.filterInput}
                 />
-                <button onClick={handleFilterSubmit} className={classes.filterButton}>Відфільтрувати</button>
+                <button onClick={handleFilterSubmit} className={classes.filterButton}>{formatMessage({id: 'filter_Button'})}</button>
             </div>
             <ol>
                 {isLoaded && list.map((item, index) => (
@@ -285,12 +281,13 @@ function EmployeeDefault() {
                             <AiFillCaretUp/> <span className={classes.buttonText}>...</span>
                         </div>
                     </div>
+
                 </div>
                 <div className={classes.emptyBlock}>
                     <div className={`${classes.Button} ${classes.additionalButton}`}
                          onClick={handleAddEmployee}>
                         <AiOutlinePlus/>
-                        <span className={classes.buttonText}>Додати співробітника</span>
+                        <span className={classes.buttonText}>{formatMessage({id: 'addEmployee'})}</span>
                     </div>
                 </div>
             </ol>

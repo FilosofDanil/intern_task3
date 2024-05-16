@@ -19,7 +19,6 @@ import pageURLs from 'constants/pagesURLs';
 import SecretPage from 'pageProviders/Secret';
 import ThemeProvider from 'misc/providers/ThemeProvider';
 import UserProvider from 'misc/providers/UserProvider';
-import storage, { keys } from 'misc/storage';
 
 import actionsUser from '../actions/user';
 import Header from '../components/Header';

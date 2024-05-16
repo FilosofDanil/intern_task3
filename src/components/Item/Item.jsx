@@ -9,6 +9,7 @@ import * as pages from "../../constants/pages";
 import {useDispatch, useSelector} from "react-redux";
 import exportFunctions from "../../pages/employeeDefault/actions/employee";
 import {Notify} from "notiflix/build/notiflix-notify-aio";
+import {useIntl} from "react-intl";
 
 const getClasses = createUseStyles(theme => ({
     container: {
@@ -55,15 +56,16 @@ const Item = ({employee}) => {
     const classes = getClasses({theme});
     const dispatch = useDispatch()
     const isDeleted = useSelector((state) => state.deleteEmployee);
+    const {formatMessage} = useIntl();
 
     useEffect(() => {
         if(isConfirmationOpen){
             if (isDeleted.isDeleted) {
-                Notify.success('Successfully deleted employee')
+                Notify.success( formatMessage({id: 'successDelete'}))
                 setIsConfirmationOpen(false);
             }
             if(!isDeleted.isDeleted){
-                Notify.failure('Failed to delete employee')
+                Notify.failure(formatMessage({id: 'unSuccessDelete'}))
                 setIsConfirmationOpen(true)
             }
         }

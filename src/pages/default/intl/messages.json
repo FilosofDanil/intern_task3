@@ -1,3 +1,8 @@
 {
-  "title": "This is the first page that visitors to your site will see, place all the information they need here"
+  "title": "Intern Fulstack Task 3",
+  "description": "The project, which represents managing of employees in companies",
+  "toList": "Go to Employee List",
+  "toMoreInfoPage": "Edit Mode",
+  "author": "Author: Berkovskyi Danylo",
+  "reserved" : "All rights reserved"
 }
