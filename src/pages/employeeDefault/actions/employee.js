@@ -29,7 +29,7 @@ const getEmployees = (param, filters) => {
     const {
         BACKEND_SERVICE,
     } = config;
-    return axios.get(`${BACKEND_SERVICE}/api/employee/_list?page=${param}
+    return axios.post(`${BACKEND_SERVICE}/api/v1/employee/_list?page=${param}
     &salaryFrom=${filters.minSalary}&salaryTo=${filters.maxSalary}
     &name=${filters.name}&surname=${filters.surname}`);
 };
@@ -38,7 +38,7 @@ const deleteEmployee = (id) => {
     const {
         BACKEND_SERVICE,
     } = config;
-    return axios.delete(`${BACKEND_SERVICE}/api/employee/${id}`)
+    return axios.delete(`${BACKEND_SERVICE}/api/v1/employee/${id}`)
         .then(status => {
             console.log(status)
             return status;

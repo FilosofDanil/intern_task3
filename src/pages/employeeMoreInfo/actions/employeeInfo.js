@@ -54,22 +54,22 @@ const getCompanies = () => {
     const {
         BACKEND_SERVICE,
     } = config;
-    return axios.get(`${BACKEND_SERVICE}/api/company`);
+    return axios.get(`${BACKEND_SERVICE}/api/v1/company`);
 };
 
 const getEmployeeById = (id) => {
     const { BACKEND_SERVICE } = config;
-    return axios.get(`${BACKEND_SERVICE}/api/employee/${id}`);
+    return axios.get(`${BACKEND_SERVICE}/api/v1/employee/${id}`);
 };
 
 const updateEmployee = (id, data) => {
     const { BACKEND_SERVICE } = config;
-    return axios.put(`${BACKEND_SERVICE}/api/employee/${id}`, data);
+    return axios.put(`${BACKEND_SERVICE}/api/v1/employee/${id}`, data);
 };
 
 const createEmployee = (data) => {
     const { BACKEND_SERVICE } = config;
-    return axios.post(`${BACKEND_SERVICE}/api/employee`, data);
+    return axios.post(`${BACKEND_SERVICE}/api/v1/employee`, data);
 };
 
 const fetchEmployeeById = (id) => (dispatch) => {
