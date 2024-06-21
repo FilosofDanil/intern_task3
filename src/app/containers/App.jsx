@@ -27,6 +27,7 @@ import MissedPage from '../components/MissedPage';
 import SearchParamsConfigurator from '../components/SearchParamsConfigurator';
 import EmployeeDefaultPage from "pageProviders/EmployeeDefault";
 import EmployeeMoreInfoPage from "../../pageProviders/EmployeeMoreInfo";
+import Profile from "../../pageProviders/Profile";
 
 function App() {
   const dispatch = useDispatch();
@@ -76,6 +77,10 @@ function App() {
                     <Route
                       element={<DefaultPage />}
                       path={`${pageURLs[pages.defaultPage]}`}
+                    />
+                    <Route
+                        element={<Profile />}
+                        path={`${pageURLs[pages.profilePage]}`}
                     />
                     <Route
                         element={<EmployeeDefaultPage />}

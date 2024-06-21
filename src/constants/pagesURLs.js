@@ -7,6 +7,7 @@ const result = {
   [pages.secretPage]: `${config.UI_URL_PREFIX}/${pages.secretPage}`,
   [pages.employeeDefaultPage]: `${config.UI_URL_PREFIX}/${pages.employeeDefaultPage}`,
   [pages.employeeInfoPage]: `${config.UI_URL_PREFIX}/${pages.employeeInfoPage}`,
+  [pages.profilePage]: `${config.UI_URL_PREFIX}/${pages.profilePage}`,
 };
 
 export default result;
