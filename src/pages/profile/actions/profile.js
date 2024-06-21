@@ -1,6 +1,6 @@
 import config from "../../../config";
 import axios from "../../../misc/requests";
-import {ERROR_CREATE_EMPLOYEE, RECEIVE_PROFILE} from "../../../app/constants/actionTypes";
+import {AUTH_ERROR, ERROR_CREATE_EMPLOYEE, RECEIVE_PROFILE} from "../../../app/constants/actionTypes";
 
 const receiveProfile = (profile) => ({
     payload: profile,
@@ -9,7 +9,7 @@ const receiveProfile = (profile) => ({
 
 const errorGetProfile = (errors) => ({
     payload: errors,
-    type: ERROR_CREATE_EMPLOYEE,
+    type: AUTH_ERROR,
 });
 
 const getProfile = () => {

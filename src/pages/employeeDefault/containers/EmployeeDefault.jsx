@@ -12,6 +12,8 @@ import exportFunctions from "../../employeeDefault/actions/employee";
 import {useDispatch, useSelector} from "react-redux";
 import pagesURLs from "../../../constants/pagesURLs";
 import * as pages from "../../../constants/pages";
+import LoginConfirmation from "../../../components/loginconfirmation";
+import config from "../../../config";
 
 const getClasses = createUseStyles((theme) => ({
     Button: {
@@ -103,6 +105,11 @@ function EmployeeDefault() {
     const [isMinSalaryValid, setIsMinSalaryValid] = useState(true)
     const [isMaxSalaryValid, setIsMaxSalaryValid] = useState(true)
     const [list, setList] = useState([])
+    const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
+    const isAuth =  useSelector((state) => state.isAuth);
+    const {
+        BACKEND_SERVICE,
+    } = config;
     const [filters, setFilters] = useState({
         minSalary: '',
         maxSalary: '',
@@ -140,6 +147,21 @@ function EmployeeDefault() {
         setList(employeeList)
     }, [employeeList]);
 
+    useEffect(() => {
+        if (isAuth){
+            setIsConfirmationOpen(false)
+        } else {
+            setIsConfirmationOpen(true)
+        }
+    }, [isAuth]);
+    const handleLogin = () => {
+        // Redirect to the authorization server
+        window.location.href = `${BACKEND_SERVICE}/oauth/authenticate`;
+    };
+
+    const handleCancel = () => {
+        setIsConfirmationOpen(false)
+    };
     const deleteEmployee = (id) => {
         setList((prev) => prev.filter((item) => item.id !== id));
     };
@@ -204,9 +226,12 @@ function EmployeeDefault() {
 
     if (!isLoaded) {
         return (
-            <Typography variant="title" align="center">
-                {formatMessage({id: 'loading'})}
-            </Typography>
+            <div>
+                {isConfirmationOpen && <LoginConfirmation onConfirm={handleLogin} onCancel={handleCancel}/>}
+                <Typography variant="title" align="center">
+                    {formatMessage({id: 'loading'})}
+                </Typography>
+            </div>
         );
     }
     return (

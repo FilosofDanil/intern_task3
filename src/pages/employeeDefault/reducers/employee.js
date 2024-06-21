@@ -13,6 +13,7 @@ const initialState = {
         counter: 0,
     },
     isLoaded: true,
+    isAuth: true,
 };
 
 export default function Reducer(state = initialState, action) {
@@ -21,7 +22,8 @@ export default function Reducer(state = initialState, action) {
             return {
                 ...state,
                 employeeList: action.payload.content,
-                totalPages: action.payload.totalPages
+                totalPages: action.payload.totalPages,
+                isAuth: true,
             };
         }
 
@@ -29,6 +31,7 @@ export default function Reducer(state = initialState, action) {
             return {
                 ...state,
                 isLoaded: false,
+                isAuth: false,
             };
         }
 

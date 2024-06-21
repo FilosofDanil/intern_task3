@@ -1,7 +1,8 @@
-import {RECEIVE_PROFILE,} from "../../../app/constants/actionTypes";
+import {AUTH_ERROR, RECEIVE_PROFILE,} from "../../../app/constants/actionTypes";
 
 const initialState = {
     profile: {},
+    isAuth: true
 };
 
 export default function Reducer(state = initialState, action) {
@@ -10,6 +11,12 @@ export default function Reducer(state = initialState, action) {
             return {
                 ...state,
                 profile: action.payload,
+                isAuth: true,
+            };
+        case AUTH_ERROR:
+            return {
+                ...state,
+                isAuth: false,
             };
 
         default: {
