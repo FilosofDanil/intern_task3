@@ -19,11 +19,14 @@ const ProfilePage = () => {
 
     useEffect(() => {
         dispatch(exportFunctions.fetchProfile())
-    }, [profile])
+
+    }, [])
 
     return (
         <div>
+            <Typography variant="title"> {formatMessage({id: 'title'})}</Typography>
             <Typography variant="title"> {profile.name}</Typography>
+            <Typography variant="title"> {profile.email}</Typography>
         </div>
     );
 }

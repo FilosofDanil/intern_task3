@@ -165,6 +165,26 @@ function Header({
             </Button>
           </Link>
 
+          <Link
+              to={{
+                pathname: `${pagesURLs[pages.profilePage]}`,
+              }}
+          >
+            <Button
+                colorVariant="header"
+                variant="text"
+            >
+              <Typography
+                  color="inherit"
+                  variant="subtitle"
+              >
+                <strong>
+                  {formatMessage({ id: 'profile' })}
+                </strong>
+              </Typography>
+            </Button>
+          </Link>
+
         </div>
         <div className={classes.toolBarContainerRight}>
           {actualOrderedRightPanelItemTypes.map((itemType) => (

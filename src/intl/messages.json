@@ -6,5 +6,6 @@
   "page.secret": "Secret Page",
   "signIn": "Sign In",
   "signOut": "Sign Out",
-  "employeePage": "Show employees"
+  "employeePage": "Show employees",
+  "profile": "Show profile"
 }

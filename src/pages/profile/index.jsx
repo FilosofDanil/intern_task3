@@ -3,7 +3,7 @@ import useLocationSearch from "../../misc/hooks/useLocationSearch";
 import getMessages from './intl';
 import IntlProvider from "../../misc/providers/IntlProvider";
 import configureStore from "../../misc/redux/configureStore";
-import rootReducer from "../../pages/employeeDefault/reducers/employee";
+import rootReducer from "../../pages/profile/reducers/profile";
 import {Provider} from "react-redux";
 import Profile from "./containers/Profile";
 
