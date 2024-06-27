@@ -1,0 +1,23 @@
+{
+  "title": "Сторінка з інформацією про певного користувача",
+  "employee_name":"Ім'я",
+  "employee_surname": "Прізвище",
+  "employee_job": "Посада",
+  "employee_salary": "Зарплата",
+  "employee_hiring_date": "Дата найму",
+  "employee_company_name": "Компанія",
+  "backButton": "На головну сторінку",
+  "toEmployees": "Назад",
+  "editButton": "Редагувати",
+  "editBack": "Назад",
+  "editClear": "Очистити",
+  "editSave": "Зберегти",
+  "editTitle": "Режим редагування співробітника",
+  "loading": "Не знайдено співробітника, чекаємо...",
+  "createSave": "Створити",
+  "successCreate": "Успішно створено співробітника",
+  "unSuccessCreate": "Помилка при створенні співробітника",
+  "successUpdate": "Успішно оновлено співробітника",
+  "unSuccessUpdate": "Помилка при оновленні співробітника",
+  "invalidData": "Невалідні дані, спробуйте ще раз"
+}
