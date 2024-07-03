@@ -14,9 +14,9 @@ const errorGetProfile = (errors) => ({
 
 const getProfile = () => {
     const {
-        PROFILE_SERVICE,
+        BACKEND_SERVICE,
     } = config;
-    return axios.get(`${PROFILE_SERVICE}/api/profile`, {withCredentials: true});
+    return axios.get(`${BACKEND_SERVICE}/api/profile`, {withCredentials: true});
 };
 
 const fetchProfile = (id) => (dispatch) => {

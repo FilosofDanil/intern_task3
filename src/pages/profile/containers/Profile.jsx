@@ -16,7 +16,7 @@ const ProfilePage = () => {
     const { theme } = useTheme();
     const classes = getClasses({ theme });
     const {
-        PROFILE_SERVICE,
+        BACKEND_SERVICE,
     } = config;
     const { formatMessage } = useIntl();
     const [isConfirmationOpen, setIsConfirmationOpen] = useState(false);
@@ -35,7 +35,7 @@ const ProfilePage = () => {
 
     const handleLogin = () => {
         // Redirect to the authorization server
-        window.location.href = `${PROFILE_SERVICE}/oauth/authenticate`;
+        window.location.href = `${BACKEND_SERVICE}/oauth/authenticate`;
     };
 
     const handleCancel = () => {
