@@ -1,0 +1,12 @@
+{
+  "title": "This is page of employees",
+  "loading": "Wait before employees will be loaded",
+  "filter_minSalary": "Minimal Salary",
+  "filter_maxSalary": "Maximal Salary",
+  "filter_name": "Name",
+  "filter_surname": "Surname",
+  "filter_Button": "Filter",
+  "successDelete": "Successfully deleted employee",
+  "unSuccessDelete": "Failed to delete employee",
+  "addEmployee": "Add employee"
+}

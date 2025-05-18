@@ -1,1 +1,1 @@
-# theGame-next-ui
+Please notice, that before laucnching this project, you should manage your backend service. First of all, you should merge changes on backend service in main branch and run it on your local machine, in order to run the project properly. Thank you for your attention and considering my application!
